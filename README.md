@@ -129,7 +129,7 @@ of an interrupt, which is more reliable on the ESP8266 with Wi-Fi active. See
   which reverse-engineered the PowerView packet format
 - [RF24](https://github.com/nRF24/RF24) and
   [PubSubClient](https://github.com/knolleary/pubsubclient)
-- Travis Goodspeed's nRF24 promiscuous-mode technique, which inspired the
+- Travis Goodspeed's [nRF24 promiscuous-mode technique](https://travisgoodspeed.blogspot.com/2011/02/promiscuity-is-nrf24l01s-duty.html), which inspired the
   discovery tools
 
 ## License

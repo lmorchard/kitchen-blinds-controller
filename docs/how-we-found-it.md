@@ -20,7 +20,7 @@ another way.
 
 ## 2. First attempt: listen to everything (`discover`)
 
-A known trick (from Travis Goodspeed) makes an nRF24 accept almost anything:
+A known trick (from Travis Goodspeed's ["Promiscuity is the nRF24L01+'s Duty"](https://travisgoodspeed.blogspot.com/2011/02/promiscuity-is-nrf24l01s-duty.html), 2011) makes an nRF24 accept almost anything:
 give it a tiny 2-byte address that matches the start of every transmission
 (`00 AA` / `00 55`, i.e. silence followed by the lead-in byte), turn off its
 error checking, and save whatever comes in. Most of it is random noise, so

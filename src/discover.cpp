@@ -2,7 +2,8 @@
 // without a PowerView Hub.
 //
 // RFPowerView only receives on a known RF_ID. To learn it, we put the nRF24
-// into "promiscuous" mode (Travis Goodspeed's trick): a 2-byte address of
+// into "promiscuous" mode (Travis Goodspeed's trick, see
+// https://travisgoodspeed.blogspot.com/2011/02/promiscuity-is-nrf24l01s-duty.html): a 2-byte address of
 // 0x00AA / 0x0055 matches the radio's preamble after a run of noise, CRC is
 // disabled, and we capture raw 32-byte payloads. Most captures are noise; real
 // PowerView packets are found by scanning every bit offset for a 0xC0 header
