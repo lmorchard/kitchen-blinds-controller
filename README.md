@@ -111,6 +111,8 @@ remote ID and group.
 
 [`docs/protocol-notes.md`](docs/protocol-notes.md) has the full write-up:
 packet layout, captured examples, rolling codes, and the CRC.
+[`docs/how-we-found-it.md`](docs/how-we-found-it.md) tells the story of how
+the protocol and the library bug were worked out, step by step.
 
 The short version: the packet CRC is CRC-16 (poly `0x755B`, init `0xFFFF`)
 over the **2-byte radio address followed by the packet**. Upstream
