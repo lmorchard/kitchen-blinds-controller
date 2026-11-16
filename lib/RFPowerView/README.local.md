@@ -10,4 +10,9 @@ Vendored from https://github.com/mattyway/RFPowerView at tag `v0.0.3`
   `PacketCRC::setNetworkAddress(rfID)`. This also removes the dependency on
   `robtillaart/CRC@1.0.2`, which is no longer in the PlatformIO registry.
 
+- **Optional IRQ polling**: define `RFPOWERVIEW_POLL_IRQ` to read the radio
+  from `RFPowerView::loop()` when the IRQ pin is low, instead of from an
+  interrupt handler. Doing SPI in an ISR is fragile on ESP8266 with Wi-Fi and
+  OTA active. Call `loop()` often when using this.
+
 See `docs/protocol-notes.md` in the project root for how this was worked out.

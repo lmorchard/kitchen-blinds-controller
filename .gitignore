@@ -1,2 +1,6 @@
 .pio/
 .vscode/
+
+# Local credentials (see *.example files)
+include/secrets.h
+secrets.ini

@@ -24,7 +24,9 @@ bool RFPowerView::begin() {
 
     pinMode(irqPin, INPUT);
 
+#ifndef RFPOWERVIEW_POLL_IRQ
     attachInterrupt(digitalPinToInterrupt(irqPin), std::bind(&RFPowerView::interruptHandler, this), FALLING);
+#endif
 
     radio.setChannel(DEFAULT_RF_CHANNEL);
     radio.setDataRate(DEFAULT_RF_DATARATE);
@@ -40,6 +42,14 @@ bool RFPowerView::begin() {
 }
 
 void RFPowerView::loop() {
+#ifdef RFPOWERVIEW_POLL_IRQ
+    // LOCAL PATCH: poll the (active-low) IRQ pin from loop() instead of doing
+    // SPI inside an interrupt handler, which is fragile on ESP8266 alongside
+    // Wi-Fi/OTA (ISR code must run from IRAM, SPI/RF24 code doesn't).
+    if (digitalRead(irqPin) == LOW) {
+        packetReceiver.read();
+    }
+#endif
     packetReceiver.loop();
 }
 

@@ -1,0 +1,51 @@
+# Home Assistant config for the kitchen blind controller.
+# Add to configuration.yaml (merge into an existing `mqtt:` section if you
+# have one), then restart HA or reload "Manually configured MQTT entities".
+#
+# Topics (published by src/firmware.cpp):
+#   home/kitchen_blind/set           <- OPEN | CLOSE | STOP | FAVORITE
+#   home/kitchen_blind/state         -> open | closed | stopped   (retained)
+#   home/kitchen_blind/attributes    -> {"last_command": ..., "source": ...}  (retained)
+#   home/kitchen_blind/availability  -> online | offline  (retained, LWT)
+#
+# The blind doesn't report its position. State is the last command sent,
+# whether from HA, the web UI, or the physical Pebble remote (the controller
+# listens for it). Favorite reports as "open" since it's part-way open.
+
+mqtt:
+  cover:
+    - name: "Kitchen Blind"
+      unique_id: kitchen_blind
+      device_class: shade
+      command_topic: "home/kitchen_blind/set"
+      payload_open: "OPEN"
+      payload_close: "CLOSE"
+      payload_stop: "STOP"
+      state_topic: "home/kitchen_blind/state"
+      state_open: "open"
+      state_closed: "closed"
+      state_stopped: "stopped"
+      json_attributes_topic: "home/kitchen_blind/attributes"
+      availability_topic: "home/kitchen_blind/availability"
+      payload_available: "online"
+      payload_not_available: "offline"
+      optimistic: false
+      retain: false
+      device: &kitchen_blind_device
+        identifiers: ["kitchen_blind_controller"]
+        name: "Kitchen Blind Controller"
+        manufacturer: "DIY (D1 Mini + nRF24L01+)"
+        model: "PowerView Gen 2 bridge"
+        configuration_url: "http://kitchen-blind.local/"
+
+  button:
+    - name: "Kitchen Blind Favorite"
+      unique_id: kitchen_blind_favorite
+      icon: mdi:star
+      command_topic: "home/kitchen_blind/set"
+      payload_press: "FAVORITE"
+      availability_topic: "home/kitchen_blind/availability"
+      payload_available: "online"
+      payload_not_available: "offline"
+      retain: false
+      device: *kitchen_blind_device
