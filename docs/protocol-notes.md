@@ -83,3 +83,19 @@ close the blind fully.
 - RFPowerView lets the sender pick arbitrary rolling codes, which suggests the
   blind only uses them to tell a new press from a repeat. To be confirmed in
   the first transmit test.
+
+## Transmit test (src/txtest.cpp, env `txtest`) — 2026-11-15
+
+Confirmed working from the D1 Mini + nRF24L01+ on the bench, using the
+vendored and CRC-patched RFPowerView (`lib/RFPowerView`):
+
+- **Open**, **Stop** and **Favorite** all control the blind.
+- **Stop on a moving blind** works: Favorite followed ~1.6 s later by Stop
+  halted the blind partway down.
+- **Random rolling codes are accepted.** The blind doesn't require them to
+  follow on from the real remote's sequence.
+- RFPowerView's defaults were enough: `RF24_PA_LOW` transmit power and ~800
+  repeats per command (~620 ms per send).
+- The very first Stop attempt was ambiguous (the remote was pressed straight
+  afterwards). If commands are ever unreliable at the final mounting spot, try
+  raising the PA level in `RFPowerView::startTransmitting()`.
