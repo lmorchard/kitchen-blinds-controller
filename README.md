@@ -70,6 +70,9 @@ Requires [PlatformIO](https://platformio.org/).
 
 5. **Home Assistant:** add [`docs/home-assistant.yaml`](docs/home-assistant.yaml)
    to `configuration.yaml`, then reload "Manually configured MQTT entities".
+   [`docs/home-assistant-automations.yaml`](docs/home-assistant-automations.yaml)
+   has example automations: open at sunrise, and move to Favorite before the
+   low afternoon sun starts glaring in.
 
 ## MQTT topics
 

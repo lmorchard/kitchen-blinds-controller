@@ -1,0 +1,76 @@
+# Home Assistant automations for the kitchen blind.
+#
+# Paste into automations.yaml, or create each automation in the UI
+# (Settings -> Automations -> Create -> "Edit in YAML") and paste one item.
+# Uses the HA 2024.10+ syntax (triggers/trigger, actions/action). On older
+# versions, use "platform:" instead of "trigger:" and "service:" instead of
+# "action:".
+#
+# Requires HA's Sun integration (on by default) and your home location set in
+# Settings -> System -> General. Check the entity IDs match yours: they come
+# from the names in docs/home-assistant.yaml (cover.kitchen_blind and
+# button.kitchen_blind_favorite).
+#
+# CALIBRATING THE GLARE AUTOMATION
+# On a sunny late afternoon, when the sun first starts beaming in unpleasantly,
+# open Developer Tools -> States, find sun.sun, and note its "elevation" and
+# "azimuth" attributes. Then:
+#   - set GLARE_ELEVATION ("below:" in the trigger) a few degrees ABOVE that
+#     elevation, so the blind moves a little before the glare starts;
+#   - set the azimuth range ("above:"/"below:" in the condition) to cover the
+#     directions in which the sun actually shines in through the window.
+# The defaults below assume a roughly west-facing window.
+#
+# Why an azimuth range: the sun sets further north in summer (azimuth ~300°
+# at mid latitudes) and further south in winter (~240°). Limiting the
+# automation to the directions that hit your window makes it naturally run in
+# spring and summer, and skip days when the low sun can't reach the window.
+
+- id: kitchen_blind_open_at_sunrise
+  alias: "Kitchen blind: open at sunrise"
+  description: "Open the kitchen blind in the morning."
+  mode: single
+  triggers:
+    - trigger: sun
+      event: sunrise
+      offset: "00:00:00"   # e.g. "00:30:00" for 30 minutes after sunrise
+  conditions: []
+  # Optional: don't open before a sensible hour on early summer mornings.
+  # conditions:
+  #   - condition: time
+  #     after: "07:00:00"
+  actions:
+    - action: cover.open_cover
+      target:
+        entity_id: cover.kitchen_blind
+
+- id: kitchen_blind_favorite_before_sunset_glare
+  alias: "Kitchen blind: favorite before sunset glare"
+  description: >
+    Move the kitchen blind to its favorite position when the afternoon sun
+    drops low enough to shine in through the window.
+  mode: single
+  triggers:
+    # Fires once, as the sun's elevation drops below this many degrees.
+    # (Elevation only falls in the afternoon, so this can't fire in the morning.)
+    - trigger: numeric_state
+      entity_id: sun.sun
+      attribute: elevation
+      below: 20   # GLARE_ELEVATION: tune this (see above)
+  conditions:
+    # Only when the sun is in the direction of the window.
+    - condition: numeric_state
+      entity_id: sun.sun
+      attribute: azimuth
+      above: 240  # tune: southern edge of the window's view (degrees)
+      below: 310  # tune: northern edge of the window's view (degrees)
+    # Optional: skip if it's cloudy. Replace with your own weather entity.
+    # - condition: not
+    #   conditions:
+    #     - condition: state
+    #       entity_id: weather.home
+    #       state: ["cloudy", "rainy", "pouring", "fog", "snowy"]
+  actions:
+    - action: button.press
+      target:
+        entity_id: button.kitchen_blind_favorite
