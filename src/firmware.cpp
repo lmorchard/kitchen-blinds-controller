@@ -47,8 +47,10 @@ static const CommandInfo COMMANDS[] = {
   {Command::OPEN, "OPEN", PacketType::OPEN, "open"},
   {Command::CLOSE, "CLOSE", PacketType::CLOSE, "closed"},
   {Command::STOP, "STOP", PacketType::STOP, "stopped"},
-  // The favorite position is part-way open; HA has no state for it.
-  {Command::FAVORITE, "FAVORITE", PacketType::MOVE_TO_SAVED_POSITION, "open"},
+  // Our favorite position is "as closed as we want it", so report closed.
+  // HA has no favorite state; last_command in the attributes tells
+  // FAVORITE and CLOSE apart.
+  {Command::FAVORITE, "FAVORITE", PacketType::MOVE_TO_SAVED_POSITION, "closed"},
 };
 
 const CommandInfo *findCommand(const String &name) {
@@ -84,12 +86,27 @@ PubSubClient mqtt(wifiClient);
 ESP8266WebServer web(80);
 
 uint32_t lastMqttAttempt = 0;
+bool restoreRequested = false;
+
+// Minimal extraction of a string value from our own flat JSON attributes,
+// e.g. jsonString("{\"source\":\"web\"}", "source") == "web".
+String jsonString(const String &json, const char *key) {
+  String needle = String("\"") + key + "\":\"";
+  int start = json.indexOf(needle);
+  if (start < 0) return "";
+  start += needle.length();
+  int end = json.indexOf('"', start);
+  return end < 0 ? "" : json.substring(start, end);
+}
 
 void publishState() {
   if (!mqtt.connected()) return;
-  mqtt.publish(TOPIC_STATE, lastState.c_str(), true);
-  String attrs = String("{\"last_command\":\"") + lastCommand + "\",\"source\":\"" + lastSource + "\"}";
-  mqtt.publish(TOPIC_ATTRS, attrs.c_str(), true);
+  // Never overwrite the retained values with "nothing known yet".
+  if (lastState != "unknown") mqtt.publish(TOPIC_STATE, lastState.c_str(), true);
+  if (lastCommand.length()) {
+    String attrs = String("{\"last_command\":\"") + lastCommand + "\",\"source\":\"" + lastSource + "\"}";
+    mqtt.publish(TOPIC_ATTRS, attrs.c_str(), true);
+  }
 }
 
 void recordCommand(const CommandInfo &c, const char *source) {
@@ -149,13 +166,29 @@ void onMqttMessage(char *topic, byte *payload, unsigned int length) {
     const CommandInfo *c = findCommand(msg);
     if (c) sendCommand(*c, "mqtt");
     else Serial.printf("Unknown MQTT command '%s'\n", msg.c_str());
+  } else if (strcmp(topic, TOPIC_ATTRS) == 0) {
+    // Our own retained attributes, fetched once after boot: restore the last
+    // command, and re-derive the cover state from it (so a change to the
+    // command -> state mapping corrects the retained state too).
+    mqtt.unsubscribe(TOPIC_ATTRS);
+    if (lastCommand.length()) return;  // a command already happened since boot
+    String cmd = jsonString(msg, "last_command");
+    const CommandInfo *c = findCommand(cmd);
+    if (!c) return;
+    lastCommand = c->name;
+    lastSource = jsonString(msg, "source");
+    lastState = c->coverState;
+    Serial.printf("Restored last command %s (from %s) -> state '%s'\n", lastCommand.c_str(), lastSource.c_str(),
+                  lastState.c_str());
+    publishState();
   } else if (strcmp(topic, TOPIC_STATE) == 0) {
-    // Our own retained state, delivered once at (re)connect: restore it.
+    // Our own retained state, fetched once after boot. Only used if there
+    // were no usable attributes to derive it from.
+    mqtt.unsubscribe(TOPIC_STATE);
     if (lastState == "unknown" && msg.length()) {
       lastState = msg;
       Serial.printf("Restored retained state '%s'\n", msg.c_str());
     }
-    mqtt.unsubscribe(TOPIC_STATE);
   }
 }
 
@@ -170,10 +203,14 @@ void mqttConnect() {
     Serial.println(F("connected"));
     mqtt.publish(TOPIC_AVAIL, "online", true);
     mqtt.subscribe(TOPIC_SET);
-    if (lastState == "unknown") {
-      mqtt.subscribe(TOPIC_STATE);  // fetch our retained state once
+    if (!restoreRequested) {
+      // First connection since boot: fetch our retained attributes and state
+      // once. Attributes are subscribed first so they usually arrive first.
+      restoreRequested = true;
+      mqtt.subscribe(TOPIC_ATTRS);
+      mqtt.subscribe(TOPIC_STATE);
     } else {
-      publishState();
+      publishState();  // reconnect: re-assert what we know
     }
   } else {
     Serial.printf("failed, rc=%d\n", mqtt.state());

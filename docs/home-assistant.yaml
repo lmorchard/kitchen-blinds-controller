@@ -10,7 +10,9 @@
 #
 # The blind doesn't report its position. State is the last command sent,
 # whether from HA, the web UI, or the physical Pebble remote (the controller
-# listens for it). Favorite reports as "open" since it's part-way open.
+# listens for it). Favorite reports as "closed": our favorite position is as
+# closed as we want the blind to go. The "Kitchen Blind Position" sensor
+# shows Open / Favorite / Stopped / Closed so the two can be told apart.
 
 mqtt:
   cover:
@@ -48,4 +50,17 @@ mqtt:
       payload_available: "online"
       payload_not_available: "offline"
       retain: false
+      device: *kitchen_blind_device
+
+  sensor:
+    - name: "Kitchen Blind Position"
+      unique_id: kitchen_blind_position
+      icon: mdi:blinds
+      state_topic: "home/kitchen_blind/attributes"
+      value_template: >
+        {{ {'OPEN': 'Open', 'CLOSE': 'Closed', 'STOP': 'Stopped',
+            'FAVORITE': 'Favorite'}.get(value_json.last_command, 'Unknown') }}
+      availability_topic: "home/kitchen_blind/availability"
+      payload_available: "online"
+      payload_not_available: "offline"
       device: *kitchen_blind_device
