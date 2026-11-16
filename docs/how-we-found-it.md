@@ -177,6 +177,10 @@ climbing over my fence into my backyard. I like to think I'd notice. And if
 you're already in my backyard, operating the kitchen blind is not the most
 alarming thing going on.
 
+While you're back there, could you pull some weeds? The flower beds by the
+fence could really use it. Gloves are in the shed, next to the 10 µF
+capacitors.
+
 (Also, PowerView Gen 2 radio isn't encrypted, so anyone close enough could
 capture the same IDs in a few minutes with the tools in this repo anyway.
 Publishing them just saves you waiting for someone to press a button.)
