@@ -31,7 +31,11 @@ mqtt:
       availability_topic: "home/kitchen_blind/availability"
       payload_available: "online"
       payload_not_available: "offline"
-      optimistic: false
+      # The blind never reports back, so state is a best guess. Optimistic mode
+      # marks it as assumed, which keeps Open/Stop/Close all enabled in the UI.
+      # Without it, HA greys out Open whenever it thinks the blind is open,
+      # including after a Stop part-way up (HA turns "stopped" into "open").
+      optimistic: true
       retain: false
       device: &kitchen_blind_device
         identifiers: ["kitchen_blind_controller"]
