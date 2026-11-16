@@ -22,10 +22,25 @@
 # The defaults below are for our window, which faces due west (270°): the
 # azimuth range is 40° either side of straight on.
 #
-# Why an azimuth range: the sun sets further north in summer (azimuth ~300°
-# at mid latitudes) and further south in winter (~240°). Limiting the
-# automation to the directions that hit your window makes it naturally run in
-# spring and summer, and skip days when the low sun can't reach the window.
+# Why an azimuth range: the sun sets further north in summer and further
+# south in winter. Limiting the automation to the directions that hit the
+# window makes it naturally run in spring and summer, and skip days when the
+# low sun can't reach the window.
+#
+# Where the sun is when it drops to 20° elevation, in Portland, OR (45.5°N),
+# and so whether the defaults (below 20°, azimuth 230-310) fire:
+#
+#   date                  azimuth at 20°  time to sunset   fires?
+#   Jun 21                284°            ~2h10m           yes
+#   May 1 / Aug 12        271°            ~2h00m           yes
+#   Mar 20 / Sep 22       248°            ~2h00m           yes
+#   Feb 5 / Nov 6         218°            ~2h30m           no
+#   Dec 21                193°            ~3h30m           no
+#
+# So it runs roughly March to October. In Nov-Feb the sun is too far south
+# when it crosses 20°; it only swings into the window's range later, as it
+# sinks toward the horizon, and the condition is only checked at the moment
+# of the trigger.
 
 - id: kitchen_blind_open_at_sunrise
   alias: "Kitchen blind: open at sunrise"
