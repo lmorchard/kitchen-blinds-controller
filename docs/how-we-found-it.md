@@ -12,6 +12,25 @@ trying all 256 possibilities for its first byte until real packets appeared,
 and solved the checksum by noticing that it includes the address. That last
 part is why RFPowerView as published only worked for its author.
 
+## "Wait, you published your blind's radio ID?"
+
+Yes. The address, remote ID and group for my kitchen blind are right there in
+this repo, and with them and a $2 radio you could absolutely open and close
+it. Congratulations.
+
+You would, however, need to be within radio range, which in practice means
+climbing over my fence into my backyard. I like to think I'd notice. And if
+you're already in my backyard, operating the kitchen blind is not the most
+alarming thing going on.
+
+While you're back there, could you pull some weeds? The flower beds by the
+fence could really use it. Gloves are in the shed, next to the 10 µF
+capacitors.
+
+(Also, PowerView Gen 2 radio isn't encrypted, so anyone close enough could
+capture the same IDs in a few minutes with the tools in this repo anyway.
+Publishing them just saves you waiting for someone to press a button.)
+
 ## 1. Starting point
 
 The Pebble remote's FCC filing (`UXURC4U4`) and the
@@ -165,22 +184,3 @@ author's address, so his setup behaves exactly as before.
    needs to run from IRAM; the SPI and RF24 code doesn't). Our copy adds an
    optional `RFPOWERVIEW_POLL_IRQ` mode that reads the radio from `loop()`
    instead, which the firmware uses.
-
-## "Wait, you published your blind's radio ID?"
-
-Yes. The address, remote ID and group for my kitchen blind are right there in
-this repo, and with them and a $2 radio you could absolutely open and close
-it. Congratulations.
-
-You would, however, need to be within radio range, which in practice means
-climbing over my fence into my backyard. I like to think I'd notice. And if
-you're already in my backyard, operating the kitchen blind is not the most
-alarming thing going on.
-
-While you're back there, could you pull some weeds? The flower beds by the
-fence could really use it. Gloves are in the shed, next to the 10 µF
-capacitors.
-
-(Also, PowerView Gen 2 radio isn't encrypted, so anyone close enough could
-capture the same IDs in a few minutes with the tools in this repo anyway.
-Publishing them just saves you waiting for someone to press a button.)
