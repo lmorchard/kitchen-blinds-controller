@@ -5,6 +5,13 @@ working commands to the blind, without a PowerView Hub. The reference details
 (IDs, packet layout, captured packets) are in
 [protocol-notes.md](protocol-notes.md).
 
+## tl;dr:
+
+We confirmed the channel by measuring signal strength, found the address by
+trying all 256 possibilities for its first byte until real packets appeared,
+and solved the checksum by noticing that it includes the address. That last
+part is why RFPowerView as published only worked for its author.
+
 ## 1. Starting point
 
 The Pebble remote's FCC filing (`UXURC4U4`) and the
@@ -158,13 +165,6 @@ author's address, so his setup behaves exactly as before.
    needs to run from IRAM; the SPI and RF24 code doesn't). Our copy adds an
    optional `RFPOWERVIEW_POLL_IRQ` mode that reads the radio from `loop()`
    instead, which the firmware uses.
-
-## In one sentence
-
-We confirmed the channel by measuring signal strength, found the address by
-trying all 256 possibilities for its first byte until real packets appeared,
-and solved the checksum by noticing that it includes the address. That last
-part is why RFPowerView as published only worked for its author.
 
 ## "Wait, you published your blind's radio ID?"
 
