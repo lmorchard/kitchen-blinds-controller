@@ -165,3 +165,18 @@ We confirmed the channel by measuring signal strength, found the address by
 trying all 256 possibilities for its first byte until real packets appeared,
 and solved the checksum by noticing that it includes the address. That last
 part is why RFPowerView as published only worked for its author.
+
+## "Wait, you published your blind's radio ID?"
+
+Yes. The address, remote ID and group for my kitchen blind are right there in
+this repo, and with them and a $2 radio you could absolutely open and close
+it. Congratulations.
+
+You would, however, need to be within radio range, which in practice means
+climbing over my fence into my backyard. I like to think I'd notice. And if
+you're already in my backyard, operating the kitchen blind is not the most
+alarming thing going on.
+
+(Also, PowerView Gen 2 radio isn't encrypted, so anyone close enough could
+capture the same IDs in a few minutes with the tools in this repo anyway.
+Publishing them just saves you waiting for someone to press a button.)
