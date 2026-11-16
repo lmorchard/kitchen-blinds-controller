@@ -19,7 +19,8 @@
 #     elevation, so the blind moves a little before the glare starts;
 #   - set the azimuth range ("above:"/"below:" in the condition) to cover the
 #     directions in which the sun actually shines in through the window.
-# The defaults below assume a roughly west-facing window.
+# The defaults below are for our window, which faces due west (270°): the
+# azimuth range is 40° either side of straight on.
 #
 # Why an azimuth range: the sun sets further north in summer (azimuth ~300°
 # at mid latitudes) and further south in winter (~240°). Limiting the
@@ -62,8 +63,8 @@
     - condition: numeric_state
       entity_id: sun.sun
       attribute: azimuth
-      above: 240  # tune: southern edge of the window's view (degrees)
-      below: 310  # tune: northern edge of the window's view (degrees)
+      above: 230  # tune: southern edge of the window's view (270 - 40)
+      below: 310  # tune: northern edge of the window's view (270 + 40)
     # Optional: skip if it's cloudy. Replace with your own weather entity.
     # - condition: not
     #   conditions:
